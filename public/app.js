@@ -94,24 +94,40 @@ function externalHost() {
  * 必须原样保留（比如 /admin/dashboard），否则点开就丢到了根路径。
  * 公网域名服务（https://rss.bz 这类）不重写：外部 IP 上没有它，换了反而打不开。
  */
+/**
+ * host 是不是「本机 / 内网」形态：回环、私有网段、.local。
+ * 跟服务端 lib/scan.js 的 isLocalishHost() 是同一套规则（进程不同没法共用），
+ * 改一处必须同步改另一处，否则会出现「卡片显示外部地址、健康检查按直连判」这种不一致。
+ */
+function isLocalishHost(hostname) {
+  const h = String(hostname || '').toLowerCase().replace(/^\[|\]$/g, '');
+  if (!h) return false;
+  if (h === 'localhost' || h.endsWith('.localhost') || h.endsWith('.local')) return true;
+  if (h.includes(':')) return true; // IPv6 字面量
+  const m = h.match(/^(\d{1,3})\.(\d{1,3})\.(\d{1,3})\.(\d{1,3})$/);
+  if (!m) return false;
+  const a = Number(m[1]);
+  const b = Number(m[2]);
+  return a === 0 || a === 127 || a === 10
+    || (a === 192 && b === 168)
+    || (a === 172 && b >= 16 && b <= 31)
+    || (a === 169 && b === 254);
+}
+
 function displayUrl(svc) {
   const host = externalHost();
   if (host && svc.port) {
     const raw = svc.url || '';
     let suffix = '';
-    let isIpLike = true;
+    let localish = true;
     if (raw) {
       try {
         const u = new URL(raw);
         suffix = `${u.pathname === '/' ? '' : u.pathname}${u.search}${u.hash}`;
-        const h = u.hostname;
-        // localhost / 纯 IP / 内网网段才需要换成本机外部地址；公网域名保持原样
-        isIpLike = h === 'localhost' || h === '[::1]' || /^\d{1,3}(\.\d{1,3}){3}$/.test(h)
-          || /^\[[0-9a-f:]+\]$/i.test(h) || /^(10|127)\./.test(h) || /^192\.168\./.test(h)
-          || /^172\.(1[6-9]|2\d|3[01])\./.test(h) || h.endsWith('.local');
+        localish = isLocalishHost(u.hostname);
       } catch { /* 存的地址不是合法 URL，就只替换 host:port */ }
     }
-    if (!isIpLike) return raw;
+    if (!localish) return raw; // 公网域名 / 外链：原样打开
     const proto = raw.startsWith('https://') ? 'https' : 'http';
     return `${proto}://${host}:${svc.port}${suffix}`;
   }
