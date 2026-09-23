@@ -152,6 +152,7 @@ function statusText(s) {
   return {
     online: '在线', offline: '离线', timeout: '超时', unknown: '未检测',
     checking: '检测中', 'local-only': '仅本机可访问',
+    'port-open': '端口可连（该端口不讲 HTTP）',
   }[s] || s;
 }
 
@@ -232,7 +233,7 @@ function visibleServices() {
   return state.services.filter((s) => {
     if (group === 'ungrouped' && s.group_id) return false;
     if (group !== 'all' && group !== 'ungrouped' && s.group_id !== Number(group)) return false;
-    if (kind === 'online' && s.status !== 'online') return false;
+    if (kind === 'online' && s.status !== 'online' && s.status !== 'port-open') return false;
     if (!q) return true;
     return [s.name, s.url, s.description, s.tags, s.port, s.command, s.group_name]
       .filter(Boolean).join(' ').toLowerCase().includes(q);
@@ -263,7 +264,8 @@ function renderSidebar() {
         ? `<button class="icon-btn tiny group-edit" data-edit-group="${esc(r.id)}" title="编辑分组"><svg class="ic ic-sm" aria-hidden="true"><use href="#i-pencil"/></svg></button>` : ''}
     </li>`).join('');
 
-  const online = state.services.filter((s) => s.status === 'online').length;
+  // port-open（进程活着但那个端口不讲 HTTP，如填了地址的数据库）也算可达，不算不可用
+  const online = state.services.filter((s) => s.status === 'online' || s.status === 'port-open').length;
   const localOnly = state.services.filter((s) => s.status === 'local-only').length;
   const offline = state.services.filter((s) => s.status === 'offline' || s.status === 'timeout').length;
   const host = externalHost();

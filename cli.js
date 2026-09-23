@@ -293,8 +293,10 @@ async function cmdCheck() {
   for (const s of list) {
     const r = results.get(s.id);
     db.setStatus(store, s.id, r.status, r.latency);
-    if (r.status === 'online') online++;
-    const mark = r.status === 'online' ? C.green('● 在线') : C.red(`● ${r.status === 'timeout' ? '超时' : '离线'}`);
+    if (r.status === 'online' || r.status === 'port-open') online++;
+    const mark = r.status === 'online' ? C.green('● 在线')
+      : r.status === 'port-open' ? C.yellow('● 端口可连')
+      : C.red(`● ${r.status === 'timeout' ? '超时' : '离线'}`);
     const via = r.via === 'tcp' ? C.dim(' TCP') : '';
     console.log(`  ${mark}${via}  ${String(r.latency ?? '-').padStart(5)}ms  ${C.blue(String(s.port ?? '-').padStart(6))}  ${s.name}`);
   }

@@ -328,6 +328,9 @@ a { color: inherit; text-decoration: none; }
 .card-status.online { background: var(--ok); box-shadow: 0 0 0 3px rgba(52, 211, 153, .15); }
 .card-status.offline, .card-status.timeout { background: var(--bad); box-shadow: 0 0 0 3px rgba(248, 113, 113, .15); }
 .card-status.local-only { background: var(--warn); box-shadow: 0 0 0 3px rgba(251, 191, 36, .15); }
+/* 端口可连但 HTTP 探测失败（数据库被填了 http:// 地址这类）：进程是活的，
+   既不标红也不当普通在线，用一个中性蓝点区分。 */
+.card-status.port-open { background: var(--accent); opacity: .6; box-shadow: 0 0 0 3px var(--accent-soft); }
 .card-status.checking { background: var(--warn); animation: pulse 1s infinite; }
 
 /* 打不开的服务标红框：进程没了的（offline/timeout），和进程活着但只绑了回环、
