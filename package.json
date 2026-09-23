@@ -1,0 +1,31 @@
+{
+  "name": "nav-hub",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "description": "本机服务导航面板 —— 端口扫描发现、图标自动检索、Docker 容器管理、SQLite 存储、零依赖",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "dev": "node --watch server.js",
+    "scan": "node cli.js scan",
+    "seed": "node cli.js seed"
+  },
+  "engines": {
+    "node": ">=22.5.0"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/wodabo/service-directory.git"
+  },
+  "author": "wodabo",
+  "license": "MIT",
+  "keywords": [
+    "dashboard",
+    "self-hosted",
+    "service-directory",
+    "docker",
+    "port-scan",
+    "sqlite"
+  ]
+}

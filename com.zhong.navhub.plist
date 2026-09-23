@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<!-- macOS LaunchAgent 开机自启模板。
+     使用前把下面的 /Users/YOUR_USER/services/nav-hub 全部替换成你的实际路径，
+     文件名改成 com.<你的名字>.navhub，拷到 ~/Library/LaunchAgents/ 后 launchctl load。 -->
+<dict>
+  <key>Label</key>
+  <string>com.yourname.navhub</string>
+
+  <key>ProgramArguments</key>
+  <array>
+    <string>/usr/bin/env</string>
+    <string>node</string>
+    <string>/Users/YOUR_USER/services/nav-hub/server.js</string>
+  </array>
+
+  <key>WorkingDirectory</key>
+  <string>/Users/YOUR_USER/services/nav-hub</string>
+
+  <key>EnvironmentVariables</key>
+  <dict>
+    <!-- 端口/监听地址/数据库路径都读项目根目录的 nav.config.json，这里不重复配置。
+         PATH 里要包含 node 所在目录（homebrew 的 node 是 keg-only 时 /usr/local/bin 里没有 node）。 -->
+    <key>PATH</key>
+    <string>/opt/homebrew/bin:/usr/local/bin:/usr/bin:/bin:/usr/sbin:/sbin</string>
+  </dict>
+
+  <key>RunAtLoad</key>
+  <true/>
+  <key>KeepAlive</key>
+  <dict>
+    <key>SuccessfulExit</key>
+    <false/>
+  </dict>
+
+  <key>StandardOutPath</key>
+  <string>/tmp/nav-hub.log</string>
+  <key>StandardErrorPath</key>
+  <string>/tmp/nav-hub.err</string>
+
+  <key>ProcessType</key>
+  <string>Background</string>
+</dict>
+</plist>
